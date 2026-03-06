@@ -584,6 +584,11 @@ body.light-mode .textarea { background: rgba(255, 255, 255, 0.86); }
   color: var(--text);
 }
 .form-message.visible { display: block; }
+.form-message.error {
+  background: rgba(255, 112, 112, 0.12);
+  border-color: rgba(255, 112, 112, 0.24);
+}
+.button[disabled] { opacity: 0.72; cursor: wait; }
 .contact-grid { grid-template-columns: 1fr 1fr; }
 .form-shell { padding: 24px; }
 .footer-shell { padding: 28px; margin: 40px 0 60px; }
