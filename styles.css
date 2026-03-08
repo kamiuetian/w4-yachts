@@ -737,3 +737,29 @@ body.light-mode .textarea { background: rgba(255, 255, 255, 0.86); }
 .footer-meta { gap: 18px; }
 .form-shell form { display: grid; gap: 18px; }
 .hidden-field { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+
+
+/* Market Authority — comparable benchmarks */
+.deal-grid .deal-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.deal-grid .deal-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.deal-grid .deal-amount {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--brand);
+  white-space: nowrap;
+}
+.deal-grid .deal-card p {
+  margin-top: 12px;
+}
+@media (max-width: 1080px) {
+  .deal-grid .deal-amount { white-space: normal; }
+}
+
