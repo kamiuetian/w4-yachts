@@ -1,100 +1,141 @@
-const body = document.body;
-const themeToggle = document.querySelector('[data-theme-toggle]');
-const mobileToggle = document.querySelector('[data-mobile-toggle]');
-const navLinks = document.querySelector('[data-mobile-nav]');
-const siteHeader = document.querySelector('.site-header');
+(() => {
+  const body = document.body;
 
-const savedTheme = localStorage.getItem('w4-theme');
-if (savedTheme === 'light') {
-  body.classList.add('light-mode');
-}
+  // Theme toggle (persisted)
+  const themeToggle = document.querySelector('[data-theme-toggle]');
+  const storedTheme = (() => {
+    try { return localStorage.getItem('theme'); } catch (_) { return null; }
+  })();
 
-if (themeToggle) {
-  const syncThemeLabel = () => {
-    const light = body.classList.contains('light-mode');
-    themeToggle.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
-    themeToggle.innerHTML = light ? '☀️' : '🌙';
-  };
-  syncThemeLabel();
-  themeToggle.addEventListener('click', () => {
-    body.classList.toggle('light-mode');
-    localStorage.setItem('w4-theme', body.classList.contains('light-mode') ? 'light' : 'dark');
-    syncThemeLabel();
-  });
-}
+  if (storedTheme === 'light') body.classList.add('light-mode');
+  if (themeToggle) themeToggle.textContent = body.classList.contains('light-mode') ? '☀️' : '🌙';
 
-if (mobileToggle && navLinks) {
-  mobileToggle.addEventListener('click', () => {
-    const isOpen = navLinks.classList.toggle('open');
-    mobileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  });
-}
-
-window.addEventListener('scroll', () => {
-  if (!siteHeader) return;
-  siteHeader.classList.toggle('scrolled', window.scrollY > 8);
-});
-
-const forms = document.querySelectorAll('form[data-async-form]');
-forms.forEach((form) => {
-  const messageBox = form.querySelector('[data-form-message]');
-  const submitButton = form.querySelector('button[type="submit"]');
-  const sourceUrl = form.querySelector('input[name="source_url"]');
-  if (sourceUrl && !sourceUrl.value) {
-    sourceUrl.value = window.location.href;
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('light-mode');
+      const mode = body.classList.contains('light-mode') ? 'light' : 'dark';
+      try { localStorage.setItem('theme', mode); } catch (_) {}
+      themeToggle.textContent = mode === 'light' ? '☀️' : '🌙';
+    });
   }
 
-  const setMessage = (text, isError = false) => {
-    if (!messageBox) return;
-    messageBox.textContent = text;
-    messageBox.classList.add('visible');
-    messageBox.classList.toggle('error', isError);
+  // Mobile menu
+  const mobileToggle = document.querySelector('[data-mobile-toggle]');
+  const mobileNav = document.querySelector('[data-mobile-nav]');
+  if (mobileToggle && mobileNav) {
+    mobileToggle.addEventListener('click', () => {
+      const isOpen = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.setAttribute('aria-expanded', String(!isOpen));
+      mobileNav.classList.toggle('open', !isOpen);
+    });
+  }
+
+  // Inquiry modal
+  const modal = document.querySelector('[data-inquiry-modal]');
+  const openers = Array.from(document.querySelectorAll('[data-open-inquiry]'));
+  const closers = modal ? Array.from(modal.querySelectorAll('[data-close-inquiry]')) : [];
+  let lastActive = null;
+
+  const openModal = () => {
+    if (!modal) return;
+    lastActive = document.activeElement;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    body.classList.add('modal-open');
+
+    // Clear any prior message and re-enable submit
+    const form = modal.querySelector('form[data-async-form]');
+    if (form) {
+      const msg = form.querySelector('[data-form-message]');
+      if (msg) msg.textContent = '';
+      const submit = form.querySelector('button[type="submit"]');
+      if (submit) submit.disabled = false;
+      // focus first input
+      const first = form.querySelector('input, select, textarea, button');
+      if (first) first.focus({ preventScroll: true });
+    }
   };
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (submitButton) submitButton.disabled = true;
-    if (messageBox) {
-      messageBox.classList.remove('visible', 'error');
-      messageBox.textContent = '';
+  const closeModal = () => {
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    body.classList.remove('modal-open');
+    if (lastActive && typeof lastActive.focus === 'function') {
+      try { lastActive.focus({ preventScroll: true }); } catch (_) { lastActive.focus(); }
     }
+  };
 
-    const payload = new FormData(form);
-    payload.set('response', 'json');
-    if (sourceUrl) {
-      payload.set('source_url', sourceUrl.value || window.location.href);
-    }
+  for (const opener of openers) {
+    opener.addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal();
+    });
+  }
 
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: payload,
-        headers: {
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
+  for (const closer of closers) {
+    closer.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeModal();
+    });
+  }
 
-      let data = null;
-      try {
-        data = await response.json();
-      } catch (error) {
-        data = null;
-      }
-
-      if (!response.ok || !data || data.success !== true) {
-        throw new Error((data && data.message) || 'Unable to send your inquiry right now.');
-      }
-
-      setMessage(data.message || 'Inquiry sent successfully.');
-      form.reset();
-      if (sourceUrl) {
-        sourceUrl.value = sourceUrl.defaultValue || window.location.href;
-      }
-    } catch (error) {
-      setMessage(error.message || 'Unable to send your inquiry right now.', true);
-    } finally {
-      if (submitButton) submitButton.disabled = false;
-    }
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeModal();
   });
-});
+
+  // Optional: open modal if URL hash is #inquiry
+  if (location && location.hash === '#inquiry') {
+    // Wait a tick so layout is ready
+    setTimeout(() => openModal(), 0);
+  }
+
+  // Async forms (JSON response supported by /form/w4contact.php)
+  const forms = document.querySelectorAll('form[data-async-form]');
+  forms.forEach((form) => {
+    const submitButton = form.querySelector('button[type="submit"]');
+    const formMessage = form.querySelector('[data-form-message]');
+
+    form.addEventListener('submit', async (e) => {
+      // If action is missing, fallback to normal submit
+      if (!form.action) return;
+
+      e.preventDefault();
+
+      if (submitButton) submitButton.disabled = true;
+      if (formMessage) formMessage.textContent = 'Sending...';
+
+      // Clear honeypot fields right before submit to avoid browser autofill false positives.
+      const honeypot = form.querySelector('input[name="contact_website"], input[name="website"]');
+      if (honeypot) honeypot.value = '';
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          }
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok && data && data.success) {
+          if (formMessage) formMessage.textContent = data.message || 'Inquiry sent successfully.';
+          form.reset();
+          // Keep hidden fields intact (reset() clears them)
+          const portfolio = form.querySelector('input[name="portfolio"]');
+          if (portfolio) portfolio.value = portfolio.value || 'w4';
+        } else {
+          if (formMessage) formMessage.textContent = (data && data.message) ? data.message : 'Unable to send your inquiry right now.';
+        }
+      } catch (err) {
+        if (formMessage) formMessage.textContent = 'Network error — please try again in a moment.';
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
+    });
+  });
+})();
