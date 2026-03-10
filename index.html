@@ -48,7 +48,7 @@
 </nav>
 <div class="nav-actions">
 <button aria-label="Switch theme" class="icon-button" data-theme-toggle="" type="button">🌙</button>
-<a class="button button-secondary print-hide" href="#inquiry">Confidential inquiry</a>
+<a class="button button-secondary print-hide" href="#inquiry" data-open-inquiry>Confidential inquiry</a>
 <button aria-expanded="false" aria-label="Open menu" class="icon-button mobile-toggle" data-mobile-toggle="" type="button">☰</button>
 </div>
 </div>
@@ -73,7 +73,7 @@
 </article>
 </div>
 <div class="hero-actions">
-<a class="button button-primary" href="#inquiry">Start confidential inquiry</a>
+<a class="button button-primary" href="#inquiry" data-open-inquiry>Start confidential inquiry</a>
 <a class="button button-secondary" href="#content">Explore AI content strategy</a>
 </div>
 <div class="hero-mini-grid">
@@ -444,56 +444,19 @@
 <span class="chip">Routed to: inquiries@ranzotech.com</span>
 <span class="chip">Escrow-first settlement</span>
 </div>
-<p class="contact-note">Use the form to submit buyer intent, budget range, and intended use. Qualified inquiries receive direct follow-up.</p>
+<p class="contact-note">Use the button to open the confidential inquiry form and submit buyer intent, budget, and intended use. Qualified inquiries receive direct follow-up.</p>
 </article>
 <aside class="form-shell">
-<form accept-charset="UTF-8" action="https://ranzotech.com/form/contact.php" data-async-form="contact" method="POST">
-<input name="portfolio" type="hidden" value="w4"/>
-
-
-
-<input name="source_url" type="hidden" value="https://w4.yachts/"/><input name="display_email" type="hidden" value="inquiries@w4.yachts"/><input name="domain" type="hidden" value="w4.yachts"/><input aria-hidden="true" autocomplete="off" class="hidden-field" name="website" tabindex="-1" type="text"/>
-<div class="form-row">
-<label class="label">Name
-                <input autocomplete="name" class="input" name="name" placeholder="Your name" required="" type="text"/>
-</label>
-<label class="label">Organization
-                <input autocomplete="organization" class="input" name="company" placeholder="Your organization" type="text"/>
-</label>
-</div>
-<div class="form-row">
-<label class="label">Role / Title
-                <input autocomplete="organization-title" class="input" name="role" placeholder="Founder, partner, VP strategy" type="text"/>
-</label>
-<label class="label">Buyer type
-                <select class="select" name="buyer_type">
-<option>Institution / Fund</option>
-<option>Operating company</option>
-<option>Publisher / Operator</option>
-<option>Founder / Builder</option>
-</select>
-</label>
-</div>
-<div class="form-row">
-<label class="label">Budget band
-                <select class="select" name="budget">
-<option>$250k – $1M</option>
-<option>$1M – $3M</option>
-<option>$3M – $7M</option>
-<option>$7M+</option>
-<option>Prefer not to say</option>
-</select>
-</label>
-<label class="label">Email
-                <input autocomplete="email" class="input" name="email" placeholder="name@company.com" required="" type="email"/>
-</label>
-</div>
-<label class="label">Intended use (one sentence)
-              <textarea class="textarea" name="message" placeholder="How would you use w4.yachts?" required=""></textarea>
-</label>
-<button class="button button-primary button-block" type="submit">Send confidential inquiry</button><div aria-live="polite" class="form-message" data-form-message="true"></div>
-</form>
-</aside>
+      <div class="inquiry-cta">
+        <h3>Request acquisition terms</h3>
+        <p>Open the confidential inquiry form to request pricing and terms for <strong>w4.yachts</strong>. NDA available for qualified buyers.</p>
+        <div class="inquiry-buttons">
+          <button class="button button-primary button-block" type="button" data-open-inquiry>Open inquiry form</button>
+          <a class="button button-secondary button-block" download href="one-pager.pdf">Download one-pager</a>
+        </div>
+        <p class="fineprint">Routed to inquiries@ranzotech.com • Escrow-first settlement preferred</p>
+      </div>
+    </aside>
 </div>
 </section>
 <div class="container">
@@ -517,7 +480,7 @@
 <div>
 <strong>Contact</strong>
 <div class="footer-links">
-<a href="#inquiry">Confidential inquiry</a>
+<a href="#inquiry" data-open-inquiry>Confidential inquiry</a>
 <span>Displayed: inquiries@w4.yachts</span>
 <span>Routed: inquiries@ranzotech.com</span>
 </div>
@@ -531,6 +494,67 @@
 </footer>
 </div>
 </main>
+<div class="modal" data-inquiry-modal aria-hidden="true">
+  <div class="modal-backdrop" data-close-inquiry></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="inquiry-title">
+    <div class="modal-head">
+      <div>
+        <span class="eyebrow">Confidential inquiry</span>
+        <h2 id="inquiry-title">Request acquisition terms</h2>
+        <p class="modal-sub">Submit intent and budget. Qualified inquiries receive direct follow-up.</p>
+      </div>
+      <button class="icon-button" type="button" data-close-inquiry aria-label="Close inquiry">✕</button>
+    </div>
+
+    <form accept-charset="UTF-8" action="https://ranzotech.com/form/w4contact.php" data-async-form="contact" method="POST">
+      <input name="portfolio" type="hidden" value="w4"/>
+      <input name="source_url" type="hidden" value="https://w4.yachts/"/>
+      <input name="display_email" type="hidden" value="inquiries@w4.yachts"/>
+      <input name="domain" type="hidden" value="w4.yachts"/>
+      <input name="response" type="hidden" value="json"/>
+      <input aria-hidden="true" autocomplete="new-password" class="hidden-field" name="contact_website" tabindex="-1" type="text"/>
+
+      <div class="form-row">
+        <label class="label">Name
+          <input autocomplete="name" class="input" name="name" placeholder="Your name" required type="text"/>
+        </label>
+        <label class="label">Organization
+          <input autocomplete="organization" class="input" name="company" placeholder="Your organization" type="text"/>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="label">Role / Title
+          <input autocomplete="organization-title" class="input" name="role" placeholder="Founder, partner, VP strategy" type="text"/>
+        </label>
+        <label class="label">Email
+          <input autocomplete="email" class="input" name="email" placeholder="name@company.com" required type="email"/>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="label">What is your budget?
+          <input class="input" name="budget" placeholder="Enter a value (USD)" inputmode="decimal" type="text"/>
+        </label>
+        <label class="label">Displayed mailbox
+          <input class="input" type="text" value="inquiries@w4.yachts" readonly/>
+        </label>
+      </div>
+
+      <label class="label">Intended use (one sentence)
+        <textarea class="textarea" name="message" placeholder="How would you use w4.yachts?" required></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button class="button button-secondary" type="button" data-close-inquiry>Cancel</button>
+        <button class="button button-primary" type="submit">Send</button>
+      </div>
+
+      <div aria-live="polite" class="form-message" data-form-message="true"></div>
+    </form>
+  </div>
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>
